@@ -23,6 +23,8 @@ import (
 	"golang.org/x/net/context"
 	_ "golang.org/x/net/trace" // register in DefaultServerMux
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/grpclog"
+	"google.golang.org/grpc/metadata"
 )
 
 var (
@@ -93,7 +95,12 @@ func buildGrpcProxyServer(logger *logrus.Entry) *grpc.Server {
 	// gRPC proxy logic.
 	backendConn := dialBackendOrFail()
 	director := func(ctx context.Context, fullMethodName string) (context.Context, *grpc.ClientConn, error) {
-		return ctx, backendConn, nil
+		md, _ := metadata.FromIncomingContext(ctx)
+        outCtx, _ := context.WithCancel(ctx)
+        mdCopy := md.Copy()
+        delete(mdCopy, "user-agent")
+        outCtx = metadata.NewOutgoingContext(outCtx, mdCopy)
+        return outCtx, backendConn, nil
 	}
 	// Server with logging and monitoring enabled.
 	return grpc.NewServer(
