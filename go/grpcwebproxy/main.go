@@ -46,9 +46,6 @@ func main() {
 	grpcServer := buildGrpcProxyServer(logEntry)
 	errChan := make(chan error)
 
-    d := time.Now().Add(5 * time.Minute)
-	ctx, cancel := context.WithDeadline(context.Background(), d)
-
 	// gRPC-Web compatibility layer with CORS configured to accept on every
 	wrappedGrpc := grpcweb.WrapServer(grpcServer, grpcweb.WithCorsForRegisteredEndpointsOnly(false))
 
