@@ -4,7 +4,6 @@ import (
 	"crypto/tls"
 	"crypto/x509"
 	"io/ioutil"
-	"time"
 
 	"github.com/sirupsen/logrus"
 	"github.com/mwitkow/grpc-proxy/proxy"
