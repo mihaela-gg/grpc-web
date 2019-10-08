@@ -8,6 +8,7 @@ import (
 	_ "net/http/pprof" // register in DefaultServerMux
 	"os"
 	"time"
+	"context"
 
 	"crypto/tls"
 
@@ -92,14 +93,15 @@ func buildGrpcProxyServer(logger *logrus.Entry) *grpc.Server {
 
 	// gRPC proxy logic.
 	backendConn := dialBackendOrFail()
-	director := func(ctx context.Context, fullMethodName string) (*grpc.ClientConn, error) {
-		return backendConn, nil
+	director := func(ctx context.Context, fullMethodName string) (context.Context, *grpc.ClientConn, error) {
+		return ctx, backendConn, nil
 	}
 	// Server with logging and monitoring enabled.
 	return grpc.NewServer(
 		// grpc-web doesn't support client-side streaming of chunks, so allow for large single message sizes.
 		grpc.MaxRecvMsgSize(64*1024*1024),
 		grpc.MaxSendMsgSize(64*1024*1024),
+		grpc.ConnectionTimeout(5 * time.Minute),
 		grpc.CustomCodec(proxy.Codec()), // needed for proxy to function.
 		grpc.UnknownServiceHandler(proxy.TransparentHandler(director)),
 		grpc_middleware.WithUnaryServerChain(
