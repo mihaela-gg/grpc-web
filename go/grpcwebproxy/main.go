@@ -8,7 +8,6 @@ import (
 	_ "net/http/pprof" // register in DefaultServerMux
 	"os"
 	"time"
-	"context"
 
 	"crypto/tls"
 
