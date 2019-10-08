@@ -95,7 +95,7 @@ func buildGrpcProxyServer(logger *logrus.Entry) *grpc.Server {
 	backendConn := dialBackendOrFail()
 	director := func(ctx context.Context, fullMethodName string) (context.Context, *grpc.ClientConn, error) {
 		md, _ := metadata.FromIncomingContext(ctx)
-        outCtx, _ := context.WithTimeout(ctx, 5*time.Minute)
+        outCtx, _ := context.WithCancel(ctx)
         mdCopy := md.Copy()
         delete(mdCopy, "user-agent")
         outCtx = metadata.NewOutgoingContext(outCtx, mdCopy)
