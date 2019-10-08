@@ -95,8 +95,7 @@ func buildGrpcProxyServer(logger *logrus.Entry) *grpc.Server {
 	backendConn := dialBackendOrFail()
 	director := func(ctx context.Context, fullMethodName string) (context.Context, *grpc.ClientConn, error) {
 		md, _ := metadata.FromIncomingContext(ctx)
-		d := time.Now().Add(5 * time.Minute)
-        outCtx, _ := context.WithDeadline(ctx, d)
+        outCtx, _ := context.WithCancel(ctx)
         mdCopy := md.Copy()
         delete(mdCopy, "user-agent")
         outCtx = metadata.NewOutgoingContext(outCtx, mdCopy)
@@ -107,7 +106,7 @@ func buildGrpcProxyServer(logger *logrus.Entry) *grpc.Server {
 		// grpc-web doesn't support client-side streaming of chunks, so allow for large single message sizes.
 		grpc.MaxRecvMsgSize(64*1024*1024),
 		grpc.MaxSendMsgSize(64*1024*1024),
-		grpc.ConnectionTimeout(5*time.Minute),
+		grpc.ConnectionTimeout(300*time.Second),
 		grpc.CustomCodec(proxy.Codec()), // needed for proxy to function.
 		grpc.UnknownServiceHandler(proxy.TransparentHandler(director)),
 		grpc_middleware.WithUnaryServerChain(
