@@ -17,7 +17,7 @@ import (
 	"github.com/grpc-ecosystem/go-grpc-prometheus"
 	"github.com/mihaela-gg/grpc-web/go/grpcweb"
 	"github.com/mwitkow/go-conntrack"
-	"github.com/mwitkow/grpc-proxy/proxy"
+	"github.com/mihaela-gg/grpc-proxy/proxy"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/spf13/pflag"
 	"golang.org/x/net/context"

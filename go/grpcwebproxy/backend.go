@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/sirupsen/logrus"
-	"github.com/mwitkow/grpc-proxy/proxy"
+	"github.com/mihaela-gg/grpc-proxy/proxy"
 	"github.com/spf13/pflag"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
