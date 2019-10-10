@@ -4,6 +4,7 @@
 package grpcweb
 
 import (
+	"context"
 	"net/http"
 
 	"strings"
@@ -110,5 +111,7 @@ func hackIntoNormalGrpcRequest(req *http.Request) *http.Request {
 	req.ProtoMinor = 0
 	contentType := req.Header.Get("content-type")
 	req.Header.Set("content-type", strings.Replace(contentType, "application/grpc-web", "application/grpc", 1))
+	ctx, _ := context.WithTimeout(context.Background(), 300*time.Second)
+	req.WithContext(ctx)
 	return req
 }
