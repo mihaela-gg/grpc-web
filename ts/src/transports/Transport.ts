@@ -33,6 +33,7 @@ function getXHR () {
 
   if (XMLHttpRequest) {
     xhr = new XMLHttpRequest();
+    xhr.timeout = 300000;
     try {
       xhr.open('GET', 'https://localhost')
     } catch(e) {}
