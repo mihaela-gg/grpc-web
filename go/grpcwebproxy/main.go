@@ -11,14 +11,14 @@ import (
 
 	"crypto/tls"
 
-	"github.com/sirupsen/logrus"
 	"github.com/grpc-ecosystem/go-grpc-middleware"
 	"github.com/grpc-ecosystem/go-grpc-middleware/logging/logrus"
 	"github.com/grpc-ecosystem/go-grpc-prometheus"
+	"github.com/mihaela-gg/grpc-proxy/proxy"
 	"github.com/mihaela-gg/grpc-web/go/grpcweb"
 	"github.com/mwitkow/go-conntrack"
-	"github.com/mwitkow/grpc-proxy/proxy"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
+	"github.com/sirupsen/logrus"
 	"github.com/spf13/pflag"
 	"golang.org/x/net/context"
 	_ "golang.org/x/net/trace" // register in DefaultServerMux
@@ -95,11 +95,11 @@ func buildGrpcProxyServer(logger *logrus.Entry) *grpc.Server {
 	backendConn := dialBackendOrFail()
 	director := func(ctx context.Context, fullMethodName string) (context.Context, *grpc.ClientConn, error) {
 		md, _ := metadata.FromIncomingContext(ctx)
-        outCtx, _ := context.WithCancel(ctx)
-        mdCopy := md.Copy()
-        delete(mdCopy, "user-agent")
-        outCtx = metadata.NewOutgoingContext(outCtx, mdCopy)
-        return outCtx, backendConn, nil
+		outCtx, _ := context.WithCancel(ctx)
+		mdCopy := md.Copy()
+		delete(mdCopy, "user-agent")
+		outCtx = metadata.NewOutgoingContext(outCtx, mdCopy)
+		return outCtx, backendConn, nil
 	}
 	// Server with logging and monitoring enabled.
 	return grpc.NewServer(
