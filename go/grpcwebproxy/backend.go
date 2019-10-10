@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/sirupsen/logrus"
-	"github.com/mihaela-gg/grpc-proxy/proxy"
+	"github.com/mwitkow/grpc-proxy/proxy"
 	"github.com/spf13/pflag"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
@@ -42,11 +42,19 @@ func dialBackendOrFail() *grpc.ClientConn {
 	if *flagBackendHostPort == "" {
 		logrus.Fatalf("flag 'backend_addr' must be set")
 	}
+
+	var kacp = keepalive.ClientParameters{
+    	Time:                10 * time.Second, // send pings every 10 seconds if there is no activity
+    	Timeout:             300 * time.Second,      // wait 1 second for ping ack before considering the connection dead
+    	PermitWithoutStream: true,             // send pings even without active streams
+    }
+
 	opt := []grpc.DialOption{}
 	opt = append(opt, grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(64 * 1024 * 1024)))
 	opt = append(opt, grpc.WithDefaultCallOptions(grpc.MaxCallSendMsgSize(64 * 1024 * 1024)))
 	opt = append(opt, grpc.WithTimeout(300 * time.Second))
 	opt = append(opt, grpc.WithCodec(proxy.Codec()))
+	opt = append(opt, grpc.WithKeepaliveParams(kacp))
 	if *flagBackendIsUsingTls {
 		opt = append(opt, grpc.WithTransportCredentials(credentials.NewTLS(buildBackendTlsOrFail())))
 	} else {
